@@ -3,11 +3,12 @@ import folium
 import requests
 import threading
 import webbrowser
-from geopy.distance import geodesic  # để tính khoảng cách
+from geopy.distance import geodesic
+import random
 
 app = Flask(__name__)
 
-def create_map(lat, lon, radius=1500):
+def get_nearby_places(lat, lon, radius=2000):
     overpass_url = "http://overpass-api.de/api/interpreter"
     overpass_query = f"""
     [out:json];
@@ -21,9 +22,38 @@ def create_map(lat, lon, radius=1500):
     response = requests.get(overpass_url, params={'data': overpass_query})
     data = response.json()
 
-    m = folium.Map(location=[lat, lon], zoom_start=15)
+    places = []
+    for element in data.get('elements', []):
+        name = element.get('tags', {}).get('name', 'Unknown')
+        if 'lat' in element and 'lon' in element:
+            el_lat, el_lon = element['lat'], element['lon']
+        elif 'center' in element:
+            el_lat, el_lon = element['center']['lat'], element['center']['lon']
+        else:
+            continue
+        distance = geodesic((lat, lon), (el_lat, el_lon)).meters
 
-    # ⭐ Marker vị trí người dùng
+        places.append({
+            'name': name,
+            'lat': el_lat,
+            'lon': el_lon,
+            'distance': int(distance),
+            'opening_hours': element.get('tags', {}).get('opening_hours', 'Không có thông tin'),
+            'cuisine': element.get('tags', {}).get('cuisine', 'Không có thông tin'),
+            'phone': element.get('tags', {}).get('phone', 'Không có thông tin'),
+            'website': element.get('tags', {}).get('website', 'Không có thông tin'),
+            'email': element.get('tags', {}).get('email', 'Không có thông tin'),
+            'address': ", ".join(filter(None, [
+                element.get('tags', {}).get('addr:housenumber'),
+                element.get('tags', {}).get('addr:street'),
+                element.get('tags', {}).get('addr:city'),
+                element.get('tags', {}).get('addr:postcode')
+            ])) or 'Không có thông tin',
+            })
+    return places
+
+def create_map(lat, lon, places):
+    m = folium.Map(location=[lat, lon], zoom_start=15)
     folium.CircleMarker(
         location=[lat, lon],
         radius=10,
@@ -34,22 +64,10 @@ def create_map(lat, lon, radius=1500):
         popup='Vị trí của bạn'
     ).add_to(m)
 
-    # ⭐ Markers quán ăn/cafe/bar + khoảng cách
-    for element in data.get('elements', []):
-        name = element.get('tags', {}).get('name', 'Unknown')
-        if 'lat' in element and 'lon' in element:
-            el_lat, el_lon = element['lat'], element['lon']
-        elif 'center' in element:
-            el_lat, el_lon = element['center']['lat'], element['center']['lon']
-        else:
-            continue
-
-        # Tính khoảng cách từ người dùng
-        distance = geodesic((lat, lon), (el_lat, el_lon)).meters
-        popup_text = f"{name} - {int(distance)} m"
-
+    for p in places:
+        popup_text = f"{p['name']} - {p['distance']} m"
         folium.Marker(
-            [el_lat, el_lon],
+            [p['lat'], p['lon']],
             popup=popup_text,
             icon=folium.Icon(color='red', icon='cutlery', prefix='fa')
         ).add_to(m)
@@ -60,12 +78,13 @@ def create_map(lat, lon, radius=1500):
 def map_view():
     lat = float(request.args.get('lat', 21.028511))
     lon = float(request.args.get('lon', 105.804817))
-    map_html = create_map(lat, lon)
-    return render_template('index.html', map_html=map_html, lat=lat, lon=lon)
+    places = get_nearby_places(lat, lon)
+    map_html = create_map(lat, lon, places)
+    return render_template('index.html', map_html=map_html, places=places)
 
 def open_browser():
     webbrowser.open("http://127.0.0.1:5000/map")
 
 if __name__ == "__main__":
     threading.Timer(1, open_browser).start()
-    app.run(debug=True)
+    app.run(debug=False)

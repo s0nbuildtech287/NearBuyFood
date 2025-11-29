@@ -1,34 +1,60 @@
 <!DOCTYPE html>
 <html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <title>Quán ăn gần bạn</title>
-    <style>
-        body { font-family: Arial, sans-serif; }
-        #map { width: 100%; height: 80vh; }
-    </style>
-</head>
-<body>
-    <h2>Quán ăn quanh vị trí của bạn (Lat: {{lat}}, Lon: {{lon}})</h2>
-    <div id="map">
-        {{ map_html|safe }}
+  <head>
+    <meta charset="UTF-8" />
+    <title>NearBuyFood</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body>
+    <header>NearBuyFood</header>
+    <div id="container">
+      <div id="map">{{ map_html|safe }}</div>
+      <div id="list">
+        {% if places %} {% for p in places %}
+        <div class="place" onclick="toggleDetail('{{ loop.index0 }}')">
+          <strong>{{ p.name }}</strong> <span>- {{ p.distance }} m</span>
+          <div class="detail" id="detail-{{ loop.index0 }}" style="display: none; padding-top: 5px; color: #555">
+            <p><strong>Giờ mở cửa: {{ p.opening_hours }}</strong></p>
+            <p><strong>Loại món ăn: {{ p.cuisine }}</strong></p>
+            <p><strong>Điện thoại: {{ p.phone }}</strong></p>
+            <p><strong>Website:</strong> {{ p.website }}</p>
+            <p><strong>Email:</strong> {{ p.email }}</p>
+            <p><strong>Địa chỉ:</strong> {{ p.address }}</p>
+          </div>
+        </div>
+        {% endfor %} {% else %}
+        <p>Không tìm thấy quán ăn/cafe/bar gần vị trí của bạn.</p>
+        {% endif %}
+      </div>
     </div>
 
     <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    if (!urlParams.has('lat') || !urlParams.has('lon')) {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (!urlParams.has("lat") || !urlParams.has("lon")) {
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                window.location.href = `/map?lat=${lat}&lon=${lon}`;
-            }, function(error) {
-                alert("Không thể lấy vị trí. Hiển thị mặc định Hồ Gươm.");
-            });
+          navigator.geolocation.getCurrentPosition(
+            function (position) {
+              const lat = position.coords.latitude;
+              const lon = position.coords.longitude;
+              window.location.href = `/map?lat=${lat}&lon=${lon}`;
+            },
+            function (error) {
+              alert("Không thể lấy vị trí. Hiển thị mặc định Hồ Gươm.");
+            }
+          );
         } else {
-            alert("Trình duyệt không hỗ trợ định vị. Hiển thị mặc định Hồ Gươm.");
+          alert("Trình duyệt không hỗ trợ định vị. Hiển thị mặc định Hồ Gươm.");
         }
-    }
+      }
+      function toggleDetail(idx) {
+        const detail = document.getElementById(`detail-${idx}`);
+        if (detail.style.display === "none") {
+          detail.style.display = "block";
+        } else {
+          detail.style.display = "none";
+        }
+      }
     </script>
-</body>
+  </body>
 </html>
