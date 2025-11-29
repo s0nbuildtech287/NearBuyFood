@@ -1,0 +1,9 @@
+name,type,category,rating,price_level,price_desc,distance_m,wifi,power_sockets,noise_level,crowd_level,opening_hours,address,note
+Highlands Coffee Hồ Gươm,cafe,Cafe học bài,4.5,2,"~35-55k/đồ uống",300,Có,Nhiều,Trung bình,Đông tối,"07:00-22:00","1 Đinh Tiên Hoàng, Hoàn Kiếm, Hà Nội","View hồ, hợp gặp đối tác, làm việc nhẹ."
+Aha Cafe Hàng Bài,cafe,Cafe học bài,4.2,1,"~25-40k/đồ uống",550,Có,Vừa,Thấp,Vừa,"07:00-23:00","20 Hàng Bài, Hoàn Kiếm, Hà Nội","Khá yên tĩnh buổi sáng, hợp học bài."
+The Coffee House Tràng Tiền,cafe,Cafe gặp gỡ,4.4,3,"~45-65k/đồ uống",700,Có,Nhiều,Trung bình,Đông,"08:00-22:30","27 Tràng Tiền, Hoàn Kiếm, Hà Nội","Không gian đẹp, hơi đông cuối tuần."
+Bún Chả Hàng Mành,restaurant,Ăn trưa,4.6,2,"~50-80k/suất",650,Không,Ít,Trung bình,Đông trưa,"10:00-21:00","1 Hàng Mành, Hoàn Kiếm, Hà Nội","Đặc sản bún chả, đông khách du lịch."
+Cơm Văn Phòng Lý Thường Kiệt,restaurant,Ăn trưa,4.0,1,"~35-45k/suất",800,Không,Ít,Trung bình,Vừa,"10:30-13:30;17:30-20:30","15 Lý Thường Kiệt, Hoàn Kiếm, Hà Nội","Phù hợp dân văn phòng, giá rẻ."
+Quán Nhậu Phố Cổ,bar,Nhậu,4.1,2,"~80-150k/người",900,Không,Ít,Ồn,Đông tối,"17:00-00:00","Ngõ 5 Tạ Hiện, Hoàn Kiếm, Hà Nội","Hợp tụ tập bạn bè, hơi ồn."
+Beer Club Rooftop,bar,Nhậu,4.3,3,"~150-250k/người",1200,Có,Ít,Ồn,Đông,"18:00-01:00","Tầng 8, 88 Trần Hưng Đạo, Hà Nội","View rooftop, nhạc lớn."
+Cafe Sách Yên Tĩnh,cafe,Cafe học bài,4.8,2,"~35-55k/đồ uống",950,Có,Nhiều,Thấp,Ít,"08:00-22:00","Ngõ 12, Phan Chu Trinh, Hà Nội","Rất yên tĩnh, hợp ngồi code/học cả buổi."
