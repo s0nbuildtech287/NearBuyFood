@@ -6,6 +6,7 @@ import webbrowser
 from geopy.distance import geodesic
 import random
 import os
+import csv
 import google.generativeai as genai
 from dotenv import load_dotenv
 
@@ -22,6 +23,21 @@ if api_key:
 else:
     model = None
     print("Warning: GEMINI_API_KEY not found in environment")
+
+# Load restaurant data from CSV
+def load_restaurants_from_csv(csv_file='restaurants.csv'):
+    restaurants = []
+    try:
+        with open(csv_file, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                restaurants.append(row)
+        print(f"Loaded {len(restaurants)} restaurants from CSV")
+    except FileNotFoundError:
+        print(f"Warning: {csv_file} not found")
+    return restaurants
+
+restaurant_data = load_restaurants_from_csv()
 
 def get_nearby_places(lat, lon, radius=2000):
     overpass_url = "http://overpass-api.de/api/interpreter"
@@ -114,18 +130,31 @@ def chat():
     if not model or not api_key:
         return jsonify({'error': 'Gemini API key not configured. Please add GEMINI_API_KEY to .env file'}), 500
     
-    # Create context from nearby places
+    # Create context from nearby places (from Overpass API)
     places_context = "\n".join([f"- {p['name']}: {p['distance']}m away, {p['cuisine']}, {p['address']}" for p in places[:5]])
     
-    system_prompt = f"""You are a helpful restaurant recommendation assistant. 
-You have access to nearby restaurants, cafes, and bars. Here are some nearby places:
+    # Create context from CSV data (restaurant recommendations database)
+    csv_context = "\n".join([f"- {r['name']}: Type={r['type']}, Specialty={r['specialty']}, Price={r['price_range']}, Rating={r['rating']}, Hours={r['hours']}, Phone={r['phone']}" 
+                             for r in restaurant_data[:10]])
+    
+    system_prompt = f"""You are a helpful restaurant recommendation assistant with expertise in Vietnamese cuisine and dining.
 
-{places_context}
+## Nearby Places Found (from OpenStreetMap):
+{places_context if places_context else "No nearby places found from map"}
 
-Help the user find the best place to eat based on their preferences. Respond in Vietnamese."""
+## Recommended Restaurants Database:
+{csv_context if csv_context else "No restaurant data available"}
+
+## Your Role:
+1. Help users find the best restaurant based on their preferences
+2. Consider cuisine type, price range, rating, and opening hours
+3. Recommend both nearby places and restaurants from the database
+4. Provide practical information like phone numbers and opening hours
+5. Respond in Vietnamese
+6. Be personalized and helpful with specific recommendations"""
     
     try:
-        full_message = system_prompt + "\n\nUser: " + user_message
+        full_message = system_prompt + "\n\nUser Request: " + user_message
         response = model.generate_content(full_message)
         
         assistant_message = response.text

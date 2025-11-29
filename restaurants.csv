@@ -1,0 +1,21 @@
+name,type,specialty,price_range,rating,hours,address,phone
+Nhà Hàng Bắc Kim,Restaurant,Vietnamese,moderate,4.5,10:00-22:00,"123 Hàng Trống, Hà Nội",0243827190
+Phở Huế Bà Hoa,Restaurant,Vietnamese Pho,budget,4.2,06:00-21:00,"456 Tây Sơn, Hà Nội",0243852020
+Cơm Tấm Ninh Kiều,Restaurant,Vietnamese Com Tam,budget,4.3,10:00-20:00,"789 Cầu Giấy, Hà Nội",0243920050
+Quán Cơm Gà Mạnh,Restaurant,Chicken Rice,budget,4.4,10:00-21:00,"321 Láng Hạ, Hà Nội",0243821050
+Cơm Gà Xứ Nghệ,Restaurant,Chicken Rice,budget,4.5,10:00-20:30,"654 Kim Mã, Hà Nội",0243820520
+Lẩu Gourmet 5 Sao,Restaurant,Hot Pot,expensive,4.7,10:00-22:00,"987 Nguyễn Huệ, Hà Nội",0243823580
+Nhà Hàng Hoa Hồng,Restaurant,French Vietnamese Fusion,expensive,4.6,11:00-23:00,"147 Mỹ Đình, Hà Nội",0243825090
+Bánh Mì Tuấn Tú,Restaurant,Vietnamese Banh Mi,budget,4.3,06:00-21:00,"258 Quang Trung, Hà Nội",0243824050
+Cà Phê Vàng,Cafe,Vietnamese Coffee,budget,4.4,07:00-21:00,"369 Đinh Liệt, Hà Nội",0243829080
+The Coffee House,Cafe,Modern Coffee,moderate,4.5,07:00-22:00,"741 Trần Hưng Đạo, Hà Nội",0243827540
+Highlands Coffee,Cafe,Vietnamese Coffee,moderate,4.3,06:30-22:00,"852 Cầu Giấy, Hà Nội",0243824090
+Cộng Cà Phê,Cafe,Vietnamese Coffee,budget,4.4,07:00-21:00,"963 Lý Thường Kiệt, Hà Nội",0243825080
+Beer Club 258,Bar,Beer & Snacks,moderate,4.2,17:00-01:00,"258 Trần Duy Hưng, Hà Nội",0243827025
+Hanoi Rock City,Bar,Craft Beer,moderate,4.4,18:00-02:00,"147 Nguyễn Thái Học, Hà Nội",0243828505
+Quán Bia Ngoài Hàng,Bar,Traditional Beer,budget,4.1,16:00-23:00,"369 Hàng Bông, Hà Nội",0243829025
+Mặt Trời Mọc,Cafe,Breakfast,budget,4.5,07:00-11:00,"741 Hoa Tú, Hà Nội",0243824075
+Nhà Hàng Thương Hè,Restaurant,Asian Fusion,moderate,4.5,11:00-22:00,"852 Trần Phú, Hà Nội",0243825095
+Poke Bowl Saigon,Restaurant,Japanese,moderate,4.6,10:00-22:00,"963 Phan Chu Trinh, Hà Nội",0243826085
+Thiên Hương Quán,Restaurant,Vietnamese,budget,4.3,10:00-20:00,"147 Quốc Tử Giám, Hà Nội",0243829050
+Lẩu Đôi Bạn,Restaurant,Hot Pot,moderate,4.4,10:00-22:00,"258 Nguyễn Tuân, Hà Nội",0243827085
