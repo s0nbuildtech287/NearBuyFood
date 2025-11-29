@@ -5,9 +5,19 @@
     <title>NearBuyFood</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='searchbox.css') }}" />
   </head>
   <body>
-    <header>NearBuyFood</header>
+    <header>
+      <h1>NearBuyFood</h1>
+    </header>
+    <div id="header">
+      <div id="search-box">
+        <input id="manual-address" type="text" placeholder="Nhập địa chỉ bạn muốn tìm..." />
+        <button onclick="searchAddress()">Tìm</button>
+        <button onclick="useGPS()">GPS</button>
+      </div>
+    </div>
     <div id="container">
       <div id="map">{{ map_html|safe }}</div>
       <div id="list">
@@ -30,6 +40,7 @@
     </div>
 
     <script>
+      // ========== GPS auto lấy lần đầu ==========
       const urlParams = new URLSearchParams(window.location.search);
       if (!urlParams.has("lat") || !urlParams.has("lon")) {
         if (navigator.geolocation) {
@@ -39,23 +50,45 @@
               const lon = position.coords.longitude;
               window.location.href = `/map?lat=${lat}&lon=${lon}`;
             },
-            function (error) {
-              alert("Không thể lấy vị trí. Hiển thị mặc định Hồ Gươm.");
+            function () {
+              alert("Không lấy được vị trí. Hiển thị mặc định Hồ Gươm.");
             },
-            {
-              enableHighAccuracy: true,
-              timeout: 10000,
-              maximumAge: 0,
-            }
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
           );
-        } else {
-          alert("Trình duyệt không hỗ trợ định vị. Hiển thị mặc định Hồ Gươm.");
         }
       }
-
+      // ========== Toggle detail ==========
       function toggleDetail(idx) {
         const detail = document.getElementById(`detail-${idx}`);
         detail.style.display = detail.style.display === "none" ? "block" : "none";
+      }
+      // ========== Dùng địa chỉ nhập ==========
+      function searchAddress() {
+        const address = document.getElementById("manual-address").value.trim();
+        if (!address) return alert("Hãy nhập địa chỉ!");
+
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`)
+          .then((res) => res.json())
+          .then((data) => {
+            if (!data.length) return alert("Không tìm thấy địa chỉ.");
+            const lat = data[0].lat;
+            const lon = data[0].lon;
+            window.location.href = `/map?lat=${lat}&lon=${lon}`;
+          })
+          .catch(() => alert("Lỗi khi tìm địa chỉ."));
+      }
+
+      // ========== Dùng GPS ==========
+      function useGPS() {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const lat = pos.coords.latitude;
+            const lon = pos.coords.longitude;
+            window.location.href = `/map?lat=${lat}&lon=${lon}`;
+          },
+          () => alert("Không dùng được GPS"),
+          { enableHighAccuracy: true }
+        );
       }
     </script>
   </body>

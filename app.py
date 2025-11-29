@@ -19,7 +19,7 @@ _last_cache = {
 }
 
 # Function to get nearby places using Overpass API
-def get_nearby_places(lat, lon, radius=5000):
+def get_nearby_places(lat, lon, radius=3000):
     global _last_cache
 
     # Cache 30 giây — tránh crash khi Ctrl+S / load lại liên tục
