@@ -8,7 +8,8 @@ import random
 
 app = Flask(__name__)
 
-def get_nearby_places(lat, lon, radius=2000):
+# Function to get nearby places using Overpass API
+def get_nearby_places(lat, lon, radius=5000):
     overpass_url = "http://overpass-api.de/api/interpreter"
     overpass_query = f"""
     [out:json];
@@ -52,6 +53,7 @@ def get_nearby_places(lat, lon, radius=2000):
             })
     return places
 
+# Function to create a folium map
 def create_map(lat, lon, places):
     m = folium.Map(location=[lat, lon], zoom_start=15)
     folium.CircleMarker(
@@ -87,4 +89,4 @@ def open_browser():
 
 if __name__ == "__main__":
     threading.Timer(1, open_browser).start()
-    app.run(debug=False)
+    app.run(debug=True)
