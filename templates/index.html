@@ -5,12 +5,159 @@
     <title>NearBuyFood</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <style>
+      /* Chat Popup Styles */
+      .chat-popup {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 350px;
+        height: 500px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 40px rgba(0, 0, 0, 0.16);
+        display: flex;
+        flex-direction: column;
+        z-index: 1000;
+        border: 1px solid #ddd;
+      }
+
+      .chat-popup.hidden {
+        display: none;
+      }
+
+      .chat-header {
+        background: linear-gradient(to right, #4facfe, #00f2fe);
+        color: white;
+        padding: 15px;
+        border-radius: 12px 12px 0 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: bold;
+      }
+
+      .chat-header .close-btn {
+        background: none;
+        border: none;
+        color: white;
+        font-size: 20px;
+        cursor: pointer;
+      }
+
+      .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 15px;
+        background: #f9f9f9;
+      }
+
+      .chat-input-area {
+        padding: 10px;
+        border-top: 1px solid #ddd;
+        display: flex;
+        gap: 5px;
+      }
+
+      .chat-input-area input {
+        flex: 1;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-family: inherit;
+      }
+
+      .chat-input-area button {
+        padding: 8px 15px;
+        background: #00f2fe;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        color: #333;
+      }
+
+      .chat-input-area button:hover {
+        background: #00d9e9;
+      }
+
+      .chat-toggle-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(to right, #4facfe, #00f2fe);
+        border: none;
+        border-radius: 50%;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .chat-toggle-btn:hover {
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+      }
+
+      .chat-toggle-btn.hidden {
+        display: none;
+      }
+
+      .user-message {
+        margin-bottom: 10px;
+        text-align: right;
+      }
+
+      .user-message-text {
+        display: inline-block;
+        background: #0066cc;
+        color: white;
+        padding: 8px 12px;
+        border-radius: 8px;
+        max-width: 80%;
+        word-wrap: break-word;
+        font-size: 14px;
+      }
+
+      .assistant-message {
+        margin-bottom: 10px;
+        text-align: left;
+      }
+
+      .assistant-message-text {
+        display: inline-block;
+        background: #e0f7fa;
+        color: #00796b;
+        padding: 8px 12px;
+        border-radius: 8px;
+        max-width: 80%;
+        word-wrap: break-word;
+        font-size: 14px;
+      }
+
+      .error-message-text {
+        display: inline-block;
+        background: #ffebee;
+        color: #c62828;
+        padding: 8px 12px;
+        border-radius: 8px;
+        max-width: 80%;
+        word-wrap: break-word;
+        font-size: 14px;
+      }
+    </style>
   </head>
   <body>
     <header>NearBuyFood</header>
     <div id="container">
       <div id="map">{{ map_html|safe }}</div>
       <div id="list">
+        <h3>📍 Quán ăn gần đây</h3>
         {% if places %} {% for p in places %}
         <div class="place" onclick="toggleDetail('{{ loop.index0 }}')">
           <strong>{{ p.name }}</strong> <span>- {{ p.distance }} m</span>
@@ -29,7 +176,28 @@
       </div>
     </div>
 
+    <!-- Chat Toggle Button -->
+    <button class="chat-toggle-btn" id="chat-toggle-btn" onclick="toggleChat()">💬</button>
+
+    <!-- Chat Popup -->
+    <div class="chat-popup hidden" id="chat-popup">
+      <div class="chat-header">
+        <span>💬 ChatGPT</span>
+        <button class="close-btn" onclick="toggleChat()">✕</button>
+      </div>
+      <div id="chat-messages" class="chat-messages">
+        <p style="color: #999; font-size: 12px; text-align: center;">Hỏi về nhà hàng gần đây...</p>
+      </div>
+      <div class="chat-input-area">
+        <input type="text" id="chat-input" placeholder="Hỏi câu hỏi..." />
+        <button onclick="sendMessage()">Gửi</button>
+      </div>
+    </div>
+
     <script>
+      let places = {{ places | tojson }};
+      let chatOpen = false;
+
       const urlParams = new URLSearchParams(window.location.search);
       if (!urlParams.has("lat") || !urlParams.has("lon")) {
         if (navigator.geolocation) {
@@ -47,6 +215,7 @@
           alert("Trình duyệt không hỗ trợ định vị. Hiển thị mặc định Hồ Gươm.");
         }
       }
+
       function toggleDetail(idx) {
         const detail = document.getElementById(`detail-${idx}`);
         if (detail.style.display === "none") {
@@ -55,6 +224,91 @@
           detail.style.display = "none";
         }
       }
+
+      function toggleChat() {
+        const chatPopup = document.getElementById("chat-popup");
+        const toggleBtn = document.getElementById("chat-toggle-btn");
+        chatOpen = !chatOpen;
+        
+        if (chatOpen) {
+          chatPopup.classList.remove("hidden");
+          toggleBtn.classList.add("hidden");
+          document.getElementById("chat-input").focus();
+        } else {
+          chatPopup.classList.add("hidden");
+          toggleBtn.classList.remove("hidden");
+        }
+      }
+
+      function sendMessage() {
+        const chatInput = document.getElementById("chat-input");
+        const message = chatInput.value.trim();
+
+        if (!message) {
+          alert("Vui lòng nhập câu hỏi");
+          return;
+        }
+
+        const chatMessages = document.getElementById("chat-messages");
+
+        // Display user message
+        const userMsgDiv = document.createElement("div");
+        userMsgDiv.className = "user-message";
+        userMsgDiv.innerHTML = `<div class="user-message-text">${escapeHtml(message)}</div>`;
+        chatMessages.appendChild(userMsgDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+
+        // Send to backend
+        fetch("/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: message,
+            places: places,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            const assistantMsgDiv = document.createElement("div");
+            assistantMsgDiv.className = "assistant-message";
+
+            if (data.reply) {
+              assistantMsgDiv.innerHTML = `<div class="assistant-message-text">${escapeHtml(data.reply).replace(/\n/g, "<br>")}</div>`;
+            } else {
+              assistantMsgDiv.innerHTML = `<div class="error-message-text"><strong>Error:</strong> ${escapeHtml(data.error || "Unknown error")}</div>`;
+            }
+            chatMessages.appendChild(assistantMsgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+          })
+          .catch((error) => {
+            const errorDiv = document.createElement("div");
+            errorDiv.className = "assistant-message";
+            errorDiv.innerHTML = `<div class="error-message-text"><strong>Error:</strong> ${error.message}</div>`;
+            chatMessages.appendChild(errorDiv);
+          });
+
+        chatInput.value = "";
+      }
+
+      function escapeHtml(text) {
+        const map = {
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;",
+        };
+        return text.replace(/[&<>"']/g, (m) => map[m]);
+      }
+
+      // Allow Enter key to send message
+      document.getElementById("chat-input").addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+          sendMessage();
+        }
+      });
     </script>
   </body>
 </html>
