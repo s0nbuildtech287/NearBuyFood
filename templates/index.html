@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quán ăn gần bạn</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #map { width: 100%; height: 80vh; }
+    </style>
+</head>
+<body>
+    <h2>Quán ăn quanh vị trí của bạn (Lat: {{lat}}, Lon: {{lon}})</h2>
+    <div id="map">
+        {{ map_html|safe }}
+    </div>
+
+    <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    if (!urlParams.has('lat') || !urlParams.has('lon')) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                window.location.href = `/map?lat=${lat}&lon=${lon}`;
+            }, function(error) {
+                alert("Không thể lấy vị trí. Hiển thị mặc định Hồ Gươm.");
+            });
+        } else {
+            alert("Trình duyệt không hỗ trợ định vị. Hiển thị mặc định Hồ Gươm.");
+        }
+    }
+    </script>
+</body>
+</html>
