@@ -25,14 +25,14 @@ else:
     print("Warning: GEMINI_API_KEY not found in environment")
 
 # Load restaurant data from CSV
-def load_restaurants_from_csv(csv_file='restaurants.csv'):
+def load_restaurants_from_csv(csv_file='datasheet.csv'):
     restaurants = []
     try:
         with open(csv_file, 'r', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             for row in reader:
                 restaurants.append(row)
-        print(f"Loaded {len(restaurants)} restaurants from CSV")
+        print(f"Loaded {len(restaurants)} restaurants from {csv_file}")
     except FileNotFoundError:
         print(f"Warning: {csv_file} not found")
     return restaurants
@@ -131,27 +131,34 @@ def chat():
         return jsonify({'error': 'Gemini API key not configured. Please add GEMINI_API_KEY to .env file'}), 500
     
     # Create context from nearby places (from Overpass API)
-    places_context = "\n".join([f"- {p['name']}: {p['distance']}m away, {p['cuisine']}, {p['address']}" for p in places[:5]])
+    places_context = "\n".join([f"- {p['name']}: {p['distance']}m away, {p['cuisine']}, {p['address']}" for p in places[:5]]) if places else "No nearby places found"
     
-    # Create context from CSV data (restaurant recommendations database)
-    csv_context = "\n".join([f"- {r['name']}: Type={r['type']}, Specialty={r['specialty']}, Price={r['price_range']}, Rating={r['rating']}, Hours={r['hours']}, Phone={r['phone']}" 
-                             for r in restaurant_data[:10]])
+    # Create context from datasheet.csv
+    datasheet_context = ""
+    if restaurant_data:
+        datasheet_context = "## Restaurant Database from Datasheet:\n"
+        datasheet_context += "\n".join([
+            f"- {row.get('name', 'N/A')}: {', '.join([f'{k}={v}' for k, v in row.items() if k != 'name'])}"
+            for row in restaurant_data[:15]
+        ])
+    else:
+        datasheet_context = "No restaurant database available"
     
     system_prompt = f"""You are a helpful restaurant recommendation assistant with expertise in Vietnamese cuisine and dining.
 
 ## Nearby Places Found (from OpenStreetMap):
-{places_context if places_context else "No nearby places found from map"}
+{places_context}
 
-## Recommended Restaurants Database:
-{csv_context if csv_context else "No restaurant data available"}
+{datasheet_context}
 
 ## Your Role:
-1. Help users find the best restaurant based on their preferences
-2. Consider cuisine type, price range, rating, and opening hours
-3. Recommend both nearby places and restaurants from the database
-4. Provide practical information like phone numbers and opening hours
-5. Respond in Vietnamese
-6. Be personalized and helpful with specific recommendations"""
+1. Analyze user preferences and recommend the best restaurants
+2. Combine information from nearby places and the restaurant database
+3. Consider cuisine type, price range, rating, and opening hours
+4. Provide practical information like phone numbers and addresses
+5. Respond in Vietnamese with detailed and personalized recommendations
+6. If a recommendation matches data from the datasheet, prioritize it
+7. Be helpful and suggest alternatives if needed"""
     
     try:
         full_message = system_prompt + "\n\nUser Request: " + user_message
