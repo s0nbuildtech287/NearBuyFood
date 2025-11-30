@@ -21,6 +21,14 @@
     <div id="container">
       <div id="map">{{ map_html|safe }}</div>
       <div id="list">
+        {% if nearest %}
+        <div class="suggest-box">
+          <h3>⭐ Gợi ý hôm nay</h3>
+          <p><strong>Quán gần nhất:</strong> {{ nearest.name }} ({{ nearest.distance }} m)</p>
+          <p><strong>Đầy đủ thông tin nhất:</strong> {{ most_info.name }}</p>
+        </div>
+        {% endif %}
+        <!-- == -->
         {% if places %} {% for p in places %}
         <div class="place" onclick="toggleDetail('{{ loop.index0 }}')">
           <strong>{{ p.name }}</strong> <span>- {{ p.distance }} m</span>

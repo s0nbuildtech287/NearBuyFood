@@ -5,9 +5,21 @@ import threading
 import webbrowser
 from geopy.distance import geodesic
 import time
+import gspread
+from google.oauth2.service_account import Credentials
 
 app = Flask(__name__)
 
+# ==============================
+# 1. GOOGLE SHEET CONFIG
+# ==============================
+SHEET_ID = "1inrbMAXd3CXE0kK8QA_tFY8kIhU7V1L8ZwrgWAqndzY"   # <<< Thay bằng ID Google Sheet của bạn
+CREDS_FILE = "credentials.json"
+
+SCOPES = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"
+]
 
 # Cache chống spam API khi reload quá nhanh
 _last_cache = {
@@ -17,6 +29,30 @@ _last_cache = {
     "radius": None,
     "data": None
 }
+# function to fetch data from Google Sheets (not used in current version)
+def write_to_sheet(places):
+    """Ghi toàn bộ dữ liệu địa điểm vào Google Sheets."""
+    try:
+        creds = Credentials.from_service_account_file(CREDS_FILE, scopes=SCOPES)
+        client = gspread.authorize(creds)
+        sheet = client.open_by_key(SHEET_ID).sheet1
+
+        sheet.clear()
+        sheet.append_row(["Name", "Distance (m)", "Cuisine", "Phone", "Website", "Email", "Address"])
+
+        for p in places:
+            sheet.append_row([
+                p["name"],
+                p["distance"],
+                p["cuisine"],
+                p["phone"],
+                p["website"],
+                p["email"],
+                p["address"]
+            ])
+
+    except Exception as e:
+        print("Lỗi Google Sheets:", e)
 
 # Function to get nearby places using Overpass API
 def get_nearby_places(lat, lon, radius=3000):
@@ -112,6 +148,25 @@ def get_nearby_places(lat, lon, radius=3000):
     }
 
     return places
+# function to find nearest and most info places
+def get_recommendations(places):
+    if not places:
+        return None, None
+
+    # Gần nhất
+    nearest = min(places, key=lambda x: x["distance"])
+
+    # Thông tin nhiều nhất
+    most_info = max(places, key=lambda x: sum([
+        x["opening_hours"] != "Không có thông tin",
+        x["cuisine"] != "Không có thông tin",
+        x["phone"] != "Không có thông tin",
+        x["website"] != "Không có thông tin",
+        x["email"] != "Không có thông tin",
+        x["address"] != "Không có thông tin",
+    ]))
+
+    return nearest, most_info
 
 # Function to create a folium map
 def create_map(lat, lon, places):
@@ -141,8 +196,15 @@ def map_view():
     lat = float(request.args.get('lat', 21.028511))
     lon = float(request.args.get('lon', 105.804817))
     places = get_nearby_places(lat, lon)
+    # change
+    nearest, most_info = get_recommendations(places)
+      # Ghi Google Sheets
+    if places:
+        write_to_sheet(places)
+    # change end
     map_html = create_map(lat, lon, places)
-    return render_template('index.html', map_html=map_html, places=places)
+    return render_template('index.html', map_html=map_html, places=places,nearest=nearest,
+        most_info=most_info)
 
 def open_browser():
     webbrowser.open("http://127.0.0.1:5000/map")
