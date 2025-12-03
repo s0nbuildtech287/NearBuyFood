@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import folium
 import requests
 import threading
@@ -7,8 +7,15 @@ from geopy.distance import geodesic
 import time
 import gspread
 from google.oauth2.service_account import Credentials
+import random
+import os
+import csv
+import google.generativeai as genai
+from dotenv import load_dotenv
 
+load_dotenv()
 app = Flask(__name__)
+
 
 # ==============================
 # 1. GOOGLE SHEET CONFIG
@@ -54,7 +61,33 @@ def write_to_sheet(places):
     except Exception as e:
         print("Lỗi Google Sheets:", e)
 
-# Function to get nearby places using Overpass API
+
+# Configure Gemini API
+api_key = os.getenv('GEMINI_API_KEY')
+if api_key:
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel('gemini-2.0-flash')
+else:
+    model = None
+    print("Warning: GEMINI_API_KEY not found in environment")
+
+# Load restaurant data from CSV
+def load_restaurants_from_csv(csv_file='datasheet.csv'):
+    restaurants = []
+    try:
+        with open(csv_file, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                restaurants.append(row)
+        print(f"Loaded {len(restaurants)} restaurants from {csv_file}")
+    except FileNotFoundError:
+        print(f"Warning: {csv_file} not found")
+    return restaurants
+
+restaurant_data = load_restaurants_from_csv()
+
+# ==============================
+#functions to get nearby places from OpenStreetMap
 def get_nearby_places(lat, lon, radius=3000):
     global _last_cache
 
@@ -148,6 +181,7 @@ def get_nearby_places(lat, lon, radius=3000):
     }
 
     return places
+
 # function to find nearest and most info places
 def get_recommendations(places):
     if not places:
@@ -205,6 +239,67 @@ def map_view():
     map_html = create_map(lat, lon, places)
     return render_template('index.html', map_html=map_html, places=places,nearest=nearest,
         most_info=most_info)
+
+@app.route("/api/chat", methods=['POST'])
+def chat():
+    data = request.json
+    user_message = data.get('message', '')
+    places = data.get('places', [])
+    
+    if not user_message:
+        return jsonify({'error': 'Message is required'}), 400
+    
+    if not model or not api_key:
+        return jsonify({'error': 'Gemini API key not configured. Please add GEMINI_API_KEY to .env file'}), 500
+    
+    # Create context from nearby places (from Overpass API)
+    places_context = "\n".join([f"- {p['name']}: {p['distance']}m away, {p['cuisine']}, {p['address']}" for p in places[:5]]) if places else "No nearby places found"
+    
+    # Create context from datasheet.csv
+    datasheet_context = ""
+    if restaurant_data:
+        datasheet_context = "## Restaurant Database from Datasheet:\n"
+        datasheet_context += "\n".join([
+            f"- {row.get('name', 'N/A')}: {', '.join([f'{k}={v}' for k, v in row.items() if k != 'name'])}"
+            for row in restaurant_data[:15]
+        ])
+    else:
+        datasheet_context = "No restaurant database available"
+    
+    system_prompt = f"""You are a helpful restaurant recommendation assistant with expertise in Vietnamese cuisine and dining.
+
+## Nearby Places Found (from OpenStreetMap):
+{places_context}
+
+{datasheet_context}
+
+## Your Role:
+1. Analyze user preferences and recommend the best restaurants
+2. Combine information from nearby places and the restaurant database
+3. Consider cuisine type, price range, rating, and opening hours
+4. Provide practical information like phone numbers and addresses
+5. Respond in Vietnamese with detailed and personalized recommendations
+6. If a recommendation matches data from the datasheet, prioritize it
+7. Be helpful and suggest alternatives if needed"""
+    
+    try:
+        full_message = system_prompt + "\n\nUser Request: " + user_message
+        response = model.generate_content(full_message)
+        
+        assistant_message = response.text
+        return jsonify({'reply': assistant_message})
+    
+    except Exception as e:
+        error_msg = str(e)
+        print(f"Error calling Gemini API: {error_msg}")
+        
+        # Handle specific error cases
+        if 'quota' in error_msg.lower() or 'rate_limit' in error_msg.lower():
+            return jsonify({'error': 'Gemini quota exceeded or rate limited. Please try again later'}), 429
+        elif '401' in error_msg or 'authentication' in error_msg.lower() or 'invalid' in error_msg.lower():
+            return jsonify({'error': 'Invalid Gemini API key. Please check your .env file'}), 401
+        else:
+            return jsonify({'error': f'Error: {error_msg}'}), 500
 
 def open_browser():
     webbrowser.open("http://127.0.0.1:5000/map")
