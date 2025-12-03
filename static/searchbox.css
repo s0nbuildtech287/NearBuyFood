@@ -1,69 +1,139 @@
 /* Container search */
 #header {
   width: 100%;
-  background: #ffffff;
-  padding: 15px 20px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  border-bottom-left-radius: 10px;
-  border-bottom-right-radius: 10px;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border-bottom-left-radius: 15px;
+  border-bottom-right-radius: 15px;
   display: flex;
   justify-content: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
 }
 
 #search-box {
   display: flex;
   align-items: center;
   width: 100%;
-  max-width: 600px;
-  gap: 10px;
+  max-width: 700px;
+  gap: 12px;
+  animation: slideIn 0.5s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Input địa chỉ */
 #manual-address {
   flex: 1;
-  padding: 10px 15px;
+  padding: 14px 20px;
   font-size: 15px;
-  border: 1px solid #ccc;
-  border-radius: 25px;
+  border: 2px solid #e0e0e0;
+  border-radius: 30px;
   outline: none;
   transition: all 0.3s ease;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 #manual-address:focus {
-  border-color: #4facfe;
-  box-shadow: 0 0 8px rgba(79, 172, 254, 0.4);
+  border-color: #667eea;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  transform: translateY(-2px);
+}
+
+#manual-address::placeholder {
+  color: #999;
+  font-style: italic;
 }
 
 /* Nút tìm và GPS */
 #search-box button {
-  padding: 10px 18px;
-  font-size: 14px;
-  font-weight: bold;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600;
   border: none;
-  border-radius: 25px;
+  border-radius: 30px;
   cursor: pointer;
   transition: all 0.3s ease;
   white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  position: relative;
+  overflow: hidden;
+}
+
+#search-box button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+#search-box button:hover::before {
+  width: 300px;
+  height: 300px;
 }
 
 /* Nút Tìm */
 #search-box button:first-of-type {
-  background: linear-gradient(to right, #4facfe, #00f2fe);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
 }
 
 #search-box button:first-of-type:hover {
-  filter: brightness(1.1);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+#search-box button:first-of-type:active {
+  transform: translateY(0);
 }
 
 /* Nút GPS */
 #search-box button:last-of-type {
-  background: #ff9800;
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
   color: white;
 }
 
 #search-box button:last-of-type:hover {
-  filter: brightness(1.1);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+}
+
+#search-box button:last-of-type:active {
+  transform: translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  #search-box {
+    flex-wrap: wrap;
+  }
+  
+  #manual-address {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  #search-box button {
+    flex: 1;
+    min-width: 100px;
+  }
 }

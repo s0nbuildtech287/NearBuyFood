@@ -12,15 +12,27 @@
         position: fixed;
         bottom: 20px;
         right: 20px;
-        width: 350px;
-        height: 500px;
+        width: 380px;
+        height: 550px;
         background: white;
-        border-radius: 12px;
-        box-shadow: 0 5px 40px rgba(0, 0, 0, 0.16);
+        border-radius: 20px;
+        box-shadow: 0 10px 50px rgba(0, 0, 0, 0.25);
         display: flex;
         flex-direction: column;
         z-index: 1000;
-        border: 1px solid #ddd;
+        border: 1px solid #e0e0e0;
+        animation: slideUp 0.3s ease;
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       .chat-popup.hidden {
@@ -28,81 +40,137 @@
       }
 
       .chat-header {
-        background: linear-gradient(to right, #4facfe, #00f2fe);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        padding: 15px;
-        border-radius: 12px 12px 0 0;
+        padding: 18px;
+        border-radius: 20px 20px 0 0;
         display: flex;
         justify-content: space-between;
         align-items: center;
         font-weight: bold;
+        font-size: 16px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       }
 
       .chat-header .close-btn {
-        background: none;
+        background: rgba(255, 255, 255, 0.2);
         border: none;
         color: white;
-        font-size: 20px;
+        font-size: 22px;
         cursor: pointer;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+      }
+
+      .chat-header .close-btn:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: rotate(90deg);
       }
 
       .chat-messages {
         flex: 1;
         overflow-y: auto;
-        padding: 15px;
-        background: #f9f9f9;
+        padding: 20px;
+        background: linear-gradient(to bottom, #f8f9fa 0%, #e9ecef 100%);
+      }
+
+      .chat-messages::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .chat-messages::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+
+      .chat-messages::-webkit-scrollbar-thumb {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px;
       }
 
       .chat-input-area {
-        padding: 10px;
-        border-top: 1px solid #ddd;
+        padding: 15px;
+        border-top: 1px solid #e0e0e0;
         display: flex;
-        gap: 5px;
+        gap: 8px;
+        background: white;
+        border-radius: 0 0 20px 20px;
       }
 
       .chat-input-area input {
         flex: 1;
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
+        padding: 12px 16px;
+        border: 2px solid #e0e0e0;
+        border-radius: 25px;
         font-family: inherit;
+        font-size: 14px;
+        outline: none;
+        transition: all 0.3s ease;
+      }
+
+      .chat-input-area input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
       }
 
       .chat-input-area button {
-        padding: 8px 15px;
-        background: #00f2fe;
+        padding: 12px 20px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border: none;
-        border-radius: 5px;
+        border-radius: 25px;
         cursor: pointer;
         font-weight: bold;
-        color: #333;
+        color: white;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
       }
 
       .chat-input-area button:hover {
-        background: #00d9e9;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+      }
+
+      .chat-input-area button:active {
+        transform: translateY(0);
       }
 
       .chat-toggle-btn {
         position: fixed;
         bottom: 20px;
         right: 20px;
-        width: 60px;
-        height: 60px;
-        background: linear-gradient(to right, #4facfe, #00f2fe);
+        width: 65px;
+        height: 65px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         border: none;
         border-radius: 50%;
         color: white;
-        font-size: 24px;
+        font-size: 28px;
         cursor: pointer;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         z-index: 999;
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: all 0.3s ease;
+        animation: pulse 2s infinite;
+      }
+
+      @keyframes pulse {
+        0%, 100% {
+          box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        50% {
+          box-shadow: 0 6px 30px rgba(102, 126, 234, 0.6);
+        }
       }
 
       .chat-toggle-btn:hover {
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        transform: scale(1.1);
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
       }
 
       .chat-toggle-btn.hidden {
@@ -110,46 +178,74 @@
       }
 
       .user-message {
-        margin-bottom: 10px;
+        margin-bottom: 12px;
         text-align: right;
+        animation: fadeInRight 0.3s ease;
+      }
+
+      @keyframes fadeInRight {
+        from {
+          opacity: 0;
+          transform: translateX(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
       }
 
       .user-message-text {
         display: inline-block;
-        background: #0066cc;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
-        padding: 8px 12px;
-        border-radius: 8px;
+        padding: 10px 16px;
+        border-radius: 18px 18px 4px 18px;
         max-width: 80%;
         word-wrap: break-word;
         font-size: 14px;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
       }
 
       .assistant-message {
-        margin-bottom: 10px;
+        margin-bottom: 12px;
         text-align: left;
+        animation: fadeInLeft 0.3s ease;
+      }
+
+      @keyframes fadeInLeft {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
       }
 
       .assistant-message-text {
         display: inline-block;
-        background: #e0f7fa;
-        color: #00796b;
-        padding: 8px 12px;
-        border-radius: 8px;
+        background: white;
+        color: #333;
+        padding: 10px 16px;
+        border-radius: 18px 18px 18px 4px;
         max-width: 80%;
         word-wrap: break-word;
         font-size: 14px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e0e0e0;
       }
 
       .error-message-text {
         display: inline-block;
-        background: #ffebee;
-        color: #c62828;
-        padding: 8px 12px;
-        border-radius: 8px;
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+        color: white;
+        padding: 10px 16px;
+        border-radius: 18px;
         max-width: 80%;
         word-wrap: break-word;
         font-size: 14px;
+        box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
       }
     </style>
   </head>
@@ -172,12 +268,15 @@
           <h3>⭐ Gợi ý hôm nay</h3>
           <p><strong>Quán gần nhất:</strong> {{ nearest.name }} ({{ nearest.distance }} m)</p>
           <p><strong>Đầy đủ thông tin nhất:</strong> {{ most_info.name }}</p>
+          <p style="font-size: 12px; color: #666; margin-top: 8px;">
+            📍 Hiển thị {{ places|length }} quán trong bán kính {{ (radius or 2000)|round|int }}m
+          </p>
         </div>
         {% endif %}
         <!-- == -->
         {% if places %} {% for p in places %}
         <div class="place" onclick="toggleDetail('{{ loop.index0 }}')">
-          <strong>{{ p.name }}</strong> <span>- {{ p.distance }} m</span>
+          <strong>{{ loop.index }}. {{ p.name }}</strong> <span>- {{ p.distance }} m</span>
           <div class="detail" id="detail-{{ loop.index0 }}" style="display: none; padding-top: 5px; color: #555">
             <p><strong>Giờ mở cửa: {{ p.opening_hours }}</strong></p>
             <p><strong>Loại món ăn: {{ p.cuisine }}</strong></p>
@@ -212,24 +311,62 @@
     </div>
 
     <script>
-      // ========== GPS auto lấy lần đầu ==========
+      // ========== GPS auto lấy lần đầu với độ chính xác cao ==========
       let places = {{ places | tojson }};
       let chatOpen = false;
 
       const urlParams = new URLSearchParams(window.location.search);
       if (!urlParams.has("lat") || !urlParams.has("lon")) {
         if (navigator.geolocation) {
+          // Cải thiện độ chính xác GPS
+          const gpsOptions = {
+            enableHighAccuracy: true,  // Bật GPS độ chính xác cao
+            timeout: 15000,            // Tăng timeout lên 15s
+            maximumAge: 0              // Không dùng cache cũ
+          };
+          
           navigator.geolocation.getCurrentPosition(
             function (position) {
               const lat = position.coords.latitude;
               const lon = position.coords.longitude;
+              const accuracy = position.coords.accuracy;
+              
+              console.log(`📍 GPS Location: ${lat}, ${lon} (±${accuracy}m)`);
+              
+              // Cảnh báo nếu độ chính xác kém
+              if (accuracy > 100) {
+                console.warn('⚠️ GPS accuracy is low: ' + accuracy + 'm');
+              }
+              
               window.location.href = `/map?lat=${lat}&lon=${lon}`;
             },
-            function () {
-              alert("Không lấy được vị trí. Hiển thị mặc định Hồ Gươm.");
+            function (error) {
+              console.error('GPS Error:', error);
+              let errorMsg = "Không lấy được vị trí. ";
+              
+              switch(error.code) {
+                case error.PERMISSION_DENIED:
+                  errorMsg += "Bạn đã từ chối quyền truy cập vị trí.";
+                  break;
+                case error.POSITION_UNAVAILABLE:
+                  errorMsg += "Thông tin vị trí không khả dụng.";
+                  break;
+                case error.TIMEOUT:
+                  errorMsg += "Yêu cầu vị trí đã hết thời gian.";
+                  break;
+                default:
+                  errorMsg += "Lỗi không xác định.";
+              }
+              
+              alert(errorMsg + " Hiển thị mặc định Hồ Gươm.");
+              // Fallback to default location (Hồ Gươm, Hà Nội)
+              window.location.href = `/map?lat=21.028511&lon=105.804817`;
             },
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            gpsOptions
           );
+        } else {
+          alert("Trình duyệt không hỗ trợ GPS. Hiển thị vị trí mặc định.");
+          window.location.href = `/map?lat=21.028511&lon=105.804817`;
         }
       }
       // ========== Toggle detail ==========
@@ -237,32 +374,99 @@
         const detail = document.getElementById(`detail-${idx}`);
         detail.style.display = detail.style.display === "none" ? "block" : "none";
       }
-      // ========== Dùng địa chỉ nhập ==========
+      // ========== Dùng địa chỉ nhập với cải thiện tìm kiếm ==========
       function searchAddress() {
         const address = document.getElementById("manual-address").value.trim();
-        if (!address) return alert("Hãy nhập địa chỉ!");
+        if (!address) {
+          alert("Hãy nhập địa chỉ!");
+          return;
+        }
 
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`)
-          .then((res) => res.json())
+        // Thêm context Việt Nam để tăng độ chính xác
+        const searchQuery = address.includes("Việt Nam") || address.includes("Vietnam") 
+          ? address 
+          : address + ", Việt Nam";
+
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=5`, {
+          headers: {
+            'Accept-Language': 'vi,en',
+            'User-Agent': 'NearBuyFood/1.0'
+          }
+        })
+          .then((res) => {
+            if (!res.ok) throw new Error('Network error');
+            return res.json();
+          })
           .then((data) => {
-            if (!data.length) return alert("Không tìm thấy địa chỉ.");
-            const lat = data[0].lat;
-            const lon = data[0].lon;
+            if (!data || data.length === 0) {
+              alert("Không tìm thấy địa chỉ. Vui lòng thử lại với địa chỉ chi tiết hơn.");
+              return;
+            }
+            
+            // Lấy kết quả đầu tiên (chính xác nhất)
+            const result = data[0];
+            const lat = result.lat;
+            const lon = result.lon;
+            
+            console.log(`📍 Found: ${result.display_name}`);
+            console.log(`📍 Location: ${lat}, ${lon}`);
+            
             window.location.href = `/map?lat=${lat}&lon=${lon}`;
           })
-          .catch(() => alert("Lỗi khi tìm địa chỉ."));
+          .catch((error) => {
+            console.error('Search error:', error);
+            alert("Lỗi khi tìm địa chỉ. Vui lòng kiểm tra kết nối mạng và thử lại.");
+          });
       }
 
-      // ========== Dùng GPS ==========
+      // ========== Dùng GPS với độ chính xác cao ==========
       function useGPS() {
+        if (!navigator.geolocation) {
+          alert("Trình duyệt không hỗ trợ GPS");
+          return;
+        }
+        
+        const gpsOptions = {
+          enableHighAccuracy: true,  // GPS độ chính xác cao
+          timeout: 15000,            // 15 giây timeout
+          maximumAge: 0              // Không dùng cache
+        };
+        
         navigator.geolocation.getCurrentPosition(
           (pos) => {
             const lat = pos.coords.latitude;
             const lon = pos.coords.longitude;
+            const accuracy = pos.coords.accuracy;
+            
+            console.log(`📍 GPS: ${lat}, ${lon} (±${accuracy}m)`);
+            
+            if (accuracy > 100) {
+              if (!confirm(`Độ chính xác GPS thấp (±${Math.round(accuracy)}m). Tiếp tục?`)) {
+                return;
+              }
+            }
+            
             window.location.href = `/map?lat=${lat}&lon=${lon}`;
           },
-          () => alert("Không dùng được GPS"),
-          { enableHighAccuracy: true }
+          (error) => {
+            console.error('GPS Error:', error);
+            let errorMsg = "Không thể lấy vị trí GPS. ";
+            
+            switch(error.code) {
+              case error.PERMISSION_DENIED:
+                errorMsg += "Vui lòng cho phép truy cập vị trí.";
+                break;
+              case error.POSITION_UNAVAILABLE:
+                errorMsg += "Vị trí không khả dụng.";
+                break;
+              case error.TIMEOUT:
+                errorMsg += "Hết thời gian chờ.";
+                break;
+            }
+            
+            alert(errorMsg);
+          },
+          gpsOptions
         );
       }
 
@@ -348,6 +552,14 @@
       document.getElementById("chat-input").addEventListener("keypress", function (event) {
         if (event.key === "Enter") {
           sendMessage();
+        }
+      });
+
+      // Allow Enter key to search address
+      document.getElementById("manual-address").addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          searchAddress();
         }
       });
     </script>
